@@ -2,6 +2,8 @@ version: '3'
 
 services:
   nginx_proxy:
+    labels:
+      - "docker.group=nginx_proxy"
     container_name: nginx_proxy
     hostname: nginx_proxy
     build: ./proxy
@@ -15,6 +17,7 @@ services:
       - certs:/etc/nginx/certs:ro
       - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
+      - dhparam:/etc/nginx/dhparam
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - frontend
@@ -25,6 +28,8 @@ services:
         max-file: ${NGINX_WEB_LOG_MAX_FILE:-2}
 
   letsencrypt-companion:
+    labels:
+      - "docker.group=letsencrypt"
     container_name: letsencrypt-companion
     image: jrcs/letsencrypt-nginx-proxy-companion
     restart: always
@@ -33,6 +38,8 @@ services:
       - vhost.d:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - frontend
     depends_on:
       - nginx_proxy
     logging:
@@ -45,6 +52,7 @@ volumes:
   certs:
   vhost.d:
   html:
+  dhparam:
 
 networks:
   frontend:
